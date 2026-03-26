@@ -120,10 +120,40 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     void bootstrap();
   }, [clearSession, refreshSession]);
 
-  const login = useCallback(async (input: LoginInput) => authenticate("/auth/login", input), [authenticate]);
+  const login = useCallback(
+    async (input: LoginInput) => {
+      const email = input.email.trim();
+      if (!email) {
+        throw new Error("Elektron pochta kiritilishi shart");
+      }
+
+      if (!input.password) {
+        throw new Error("Parol kiritilishi shart");
+      }
+
+      await authenticate("/auth/login", { ...input, email });
+    },
+    [authenticate],
+  );
 
   const register = useCallback(
-    async (input: RegisterInput) => authenticate("/auth/register", input),
+    async (input: RegisterInput) => {
+      const name = input.name.trim();
+      const email = input.email.trim();
+      if (!name) {
+        throw new Error("Ism kiritilishi shart");
+      }
+
+      if (!email) {
+        throw new Error("Elektron pochta kiritilishi shart");
+      }
+
+      if (input.password.length < 8) {
+        throw new Error("Parol kamida 8 ta belgidan iborat bo'lishi kerak");
+      }
+
+      await authenticate("/auth/register", { ...input, name, email });
+    },
     [authenticate],
   );
 
@@ -139,10 +169,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const authenticatedFetch = useCallback(
     async (path: string, init?: RequestInit) => {
       const hasFormDataBody = init?.body instanceof FormData;
+      const hasBody = init?.body !== undefined && init?.body !== null;
 
       const execute = async (token: string | null) => {
         const headers = new Headers(init?.headers);
-        if (!hasFormDataBody && !headers.has("Content-Type")) {
+        if (hasBody && !hasFormDataBody && !headers.has("Content-Type")) {
           headers.set("Content-Type", "application/json");
         }
 

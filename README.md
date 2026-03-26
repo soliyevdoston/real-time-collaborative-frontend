@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Real-time Collaborative Notes App Frontend
 
-## Getting Started
+Ushbu loyiha real-time jamoaviy hujjat yozish uchun frontend qismi hisoblanadi.
+Frontend Next.js App Router asosida qurilgan va backend bilan REST + Socket + Hocuspocus orqali ishlaydi.
 
-First, run the development server:
+## Asosiy imkoniyatlar
+
+- Ro'yxatdan o'tish va kirish (JWT access token + refresh cookie oqimi)
+- Dashboard: hujjat yaratish, ro'yxatini ko'rish, o'chirish
+- Note sahifasi: real-time editor, online foydalanuvchilar, kommentlar, versiyalar
+- Share boshqaruvi: `RESTRICTED` va `ANYONE_WITH_LINK`, `VIEW` va `EDIT`
+- Kabinet: ism yangilash, avatar yuklash
+- Real-time kollaboratsiya:
+  - TipTap + Y.js + Hocuspocus (matn sinxroni)
+  - Socket.IO (presence, komment eventlari, share/collaborator o'zgarishlari)
+
+## Texnologiyalar
+
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- TanStack Query
+- TipTap + Y.js + `@hocuspocus/provider`
+- Socket.IO Client
+- date-fns, lucide-react
+
+## Muhim papkalar
+
+- `src/app/` - route sahifalar (`/`, `/auth/*`, `/dashboard`, `/notes/[id]`, `/cabinet`)
+- `src/components/` - umumiy UI va providerlar
+- `src/contexts/auth-context.tsx` - autentifikatsiya sessiyasi va `authenticatedFetch`
+- `src/lib/` - API util, type va yordamchi funksiyalar
+
+## Lokal ishga tushirish
+
+1. Dependency o'rnatish:
+
+```bash
+npm install
+```
+
+2. Root papkada `.env.local` yarating:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+NEXT_PUBLIC_COLLAB_URL=ws://localhost:1234
+```
+
+3. Frontendni ishga tushirish:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Brauzer:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Production env (Vercel)
 
-## Learn More
+Vercel loyihasida quyidagi env qiymatlarini kiriting:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_API_URL=https://<backend-domain>/api
+NEXT_PUBLIC_SOCKET_URL=https://<backend-domain>
+NEXT_PUBLIC_COLLAB_URL=wss://<backend-domain>
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Misol:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+NEXT_PUBLIC_API_URL=https://real-time-collaborative-notes-app-rxhf.onrender.com/api
+NEXT_PUBLIC_SOCKET_URL=https://real-time-collaborative-notes-app-rxhf.onrender.com
+NEXT_PUBLIC_COLLAB_URL=wss://real-time-collaborative-notes-app-rxhf.onrender.com
+```
 
-## Deploy on Vercel
+## Frontend qanday ishlaydi
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Foydalanuvchi `login/register` qiladi.
+2. Backend `accessToken` (response body) va `refreshToken` (httpOnly cookie) qaytaradi.
+3. Frontend access tokenni `localStorage`da saqlaydi.
+4. Har bir himoyalangan so'rovda `Authorization: Bearer <token>` yuboriladi.
+5. Agar `401` bo'lsa, frontend avtomatik `/auth/refresh` qilib sessiyani yangilaydi.
+6. Note sahifasida:
+   - Editor `NEXT_PUBLIC_COLLAB_URL` orqali Hocuspocusga ulanadi.
+   - Socket `NEXT_PUBLIC_SOCKET_URL` orqali presence/komment eventlarini oladi.
+   - REST API note metadata, share, comments, versions uchun ishlaydi.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## NPM scriptlar
+
+- `npm run dev` - development server
+- `npm run build` - production build
+- `npm run start` - builddan keyin ishga tushirish
+- `npm run lint` - ESLint tekshiruvi
+
+## Backend bilan bog'lanish
+
+Backend alohida repository/papkada bo'lishi mumkin.
+Sizning local muhitingizda backend:
+
+- `../Real-time Colloborative Notes app/real-time-collaborative-notes-app-backend`
+
+Frontend to'g'ri ishlashi uchun backendda CORS va cookie sozlamalari production domain bilan mos bo'lishi shart.
+
+## Tez-tez uchraydigan xatolar
+
+- CORS xatosi:
+  - Sabab: backend `Access-Control-Allow-Origin` frontend domeniga mos emas.
+  - Yechim: backend `FRONTEND_URL`/`FRONTEND_URLS` ni to'g'ri sozlash.
+- `localhost:4000`ga urinish:
+  - Sabab: Vercel env qiymati kiritilmagan.
+  - Yechim: `NEXT_PUBLIC_*` env’larni platformada qo'shib, redeploy qilish.
+- Refresh ishlamasligi:
+  - Sabab: productionda cookie `SameSite/secure` noto'g'ri.
+  - Yechim: backendda production cookie `sameSite: "none"`, `secure: true`.

@@ -425,9 +425,49 @@ textarea {
   margin: 0 0 22px;
 }
 
+.auth-prelude {
+  border: 1px solid #d9e8ea;
+  background: #f6fbfb;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin: 0 0 16px;
+}
+
+.auth-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid #c9dfe2;
+  background: #ffffff;
+  color: #1a5b63;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+}
+
+.auth-prelude-copy {
+  margin: 8px 0 0;
+  color: #415769;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .form-grid {
   display: grid;
   gap: 12px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 7px;
+}
+
+.auth-field-label {
+  color: #465566;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* Dashboard */

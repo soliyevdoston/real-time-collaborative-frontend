@@ -16,6 +16,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nextPath, setNextPath] = useState<string | null>(null);
+  const trimmedName = name.trim();
+  const trimmedEmail = email.trim();
+  const isSubmitDisabled = loading || !trimmedName || !trimmedEmail || password.length < 8;
 
   useEffect(() => {
     const next = new URLSearchParams(window.location.search).get("next");
@@ -24,11 +27,15 @@ export default function RegisterPage() {
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    if (isSubmitDisabled) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      await register({ name: name.trim(), email: email.trim(), password });
+      await register({ name: trimmedName, email: trimmedEmail, password });
       const redirectPath = nextPath ?? "/dashboard";
       router.replace(redirectPath);
     } catch (err) {
@@ -53,33 +60,83 @@ export default function RegisterPage() {
         <div className="auth-card">
           <h1 className="auth-title">Ish maydonini yarating</h1>
           <p className="auth-subtitle">Jamoangiz bilan hujjat yozishni bir necha soniyada boshlang.</p>
+          <div className="auth-prelude">
+            <span className="auth-tag">Tez boshlash</span>
+            <p className="auth-prelude-copy">
+              Ro&apos;yxatdan o&apos;tgach, yangi note ochib bir zumda hamkorlaringizni taklif qilishingiz mumkin.
+            </p>
+          </div>
           <form className="form-grid" onSubmit={onSubmit}>
-            <input
-              className="input"
-              type="text"
-              placeholder="To&apos;liq ism"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-            <input
-              className="input"
-              type="email"
-              placeholder="Elektron pochta"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-            <input
-              className="input"
-              type="password"
-              placeholder="Parol (kamida 8 ta belgi)"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-            {error ? <p className="error-text">{error}</p> : null}
-            <button className="button" disabled={loading} type="submit">
+            <div className="auth-field">
+              <label className="auth-field-label" htmlFor="register-name">
+                To&apos;liq ism
+              </label>
+              <input
+                className="input"
+                id="register-name"
+                type="text"
+                placeholder="Ism Familya"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  if (error) {
+                    setError(null);
+                  }
+                }}
+                autoComplete="name"
+                maxLength={120}
+                required
+              />
+            </div>
+            <div className="auth-field">
+              <label className="auth-field-label" htmlFor="register-email">
+                Elektron pochta
+              </label>
+              <input
+                className="input"
+                id="register-email"
+                type="email"
+                placeholder="siz@pochta.com"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (error) {
+                    setError(null);
+                  }
+                }}
+                autoComplete="email"
+                inputMode="email"
+                maxLength={320}
+                required
+              />
+            </div>
+            <div className="auth-field">
+              <label className="auth-field-label" htmlFor="register-password">
+                Parol
+              </label>
+              <input
+                className="input"
+                id="register-password"
+                type="password"
+                placeholder="Kamida 8 ta belgi"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  if (error) {
+                    setError(null);
+                  }
+                }}
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
+            </div>
+            {error ? (
+              <p aria-live="polite" className="error-text">
+                {error}
+              </p>
+            ) : null}
+            <button className="button" disabled={isSubmitDisabled} type="submit">
               {loading ? "Yaratilmoqda..." : "Akkaunt yaratish"}
             </button>
           </form>
