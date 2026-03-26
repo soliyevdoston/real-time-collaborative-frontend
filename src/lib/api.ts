@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const DEFAULT_BACKEND_ORIGIN = "https://real-time-collaborative-notes-app-rxhf.onrender.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? `${DEFAULT_BACKEND_ORIGIN}/api`;
 
 export const apiUrl = (path: string): string => {
   if (path.startsWith("/")) {

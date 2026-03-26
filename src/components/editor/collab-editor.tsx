@@ -36,7 +36,8 @@ type CollaborativeEditorProps = {
   onEditorReady?: (api: EditorCommandApi | null) => void;
 };
 
-const COLLAB_URL = process.env.NEXT_PUBLIC_COLLAB_URL ?? "ws://localhost:1234";
+const COLLAB_URL =
+  process.env.NEXT_PUBLIC_COLLAB_URL ?? "wss://real-time-collaborative-notes-app-rxhf.onrender.com";
 
 export const CollaborativeEditor = ({
   noteId,

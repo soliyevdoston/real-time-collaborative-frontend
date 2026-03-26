@@ -38,7 +38,8 @@ import { useParams, useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:4000";
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL ?? "https://real-time-collaborative-notes-app-rxhf.onrender.com";
 
 type PresenceUpdateEvent = {
   noteId: string;
